@@ -3,7 +3,7 @@
 
 terraform {
   backend "s3" {
-    bucket         = "filmpro-terraform-state-${random_suffix}"
+    bucket         = "filmpro-terraform-state-20240916"
     key            = "jenkins/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
@@ -12,11 +12,4 @@ terraform {
     # dynamodb_table = "terraform-lock-table"
     # versioning     = true
   }
-}
-
-# Random suffix for unique bucket name
-resource "random_string" "state_suffix" {
-  length  = 8
-  special = false
-  upper   = false
 }
