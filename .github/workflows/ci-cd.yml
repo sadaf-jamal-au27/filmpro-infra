@@ -107,6 +107,7 @@ jobs:
         role-session-name: terraform-plan-session
         aws-region: ${{ env.AWS_REGION }}
         audience: sts.amazonaws.com
+        output-credentials: true
 
     - name: Terraform Init
       run: terraform init
@@ -169,6 +170,7 @@ jobs:
         role-session-name: staging-deploy-session
         aws-region: ${{ env.AWS_REGION }}
         audience: sts.amazonaws.com
+        output-credentials: true
 
     - name: Terraform Init
       run: terraform init
@@ -212,6 +214,7 @@ jobs:
         role-session-name: production-deploy-session
         aws-region: ${{ env.AWS_REGION }}
         audience: sts.amazonaws.com
+        output-credentials: true
 
     - name: Terraform Init
       run: terraform init
