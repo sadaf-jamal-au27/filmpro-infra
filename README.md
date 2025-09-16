@@ -33,10 +33,32 @@ FilmPro-Infra/
 
 ### Step 1: Clone and Navigate
 ```bash
-cd /Applications/CICD/DevopsInsider/FilmPro-Infra
+git clone https://github.com/sadaf-jamal-au27/filmpro-infra.git
+cd filmpro-infra
 ```
 
-### Step 2: Initialize Terraform
+### Step 2: Development Environment Setup
+```bash
+# Run the automated setup script
+chmod +x scripts/setup-dev.sh
+./scripts/setup-dev.sh
+```
+
+This script will:
+- Check prerequisites (Git, Terraform, AWS CLI)
+- Set up Git hooks for code quality
+- Create terraform.tfvars from example
+- Initialize and validate Terraform
+- Set up development branches
+- Install security scanning tools
+
+### Step 3: Manual Configuration
+```bash
+# Edit the configuration file with your values
+vim terraform.tfvars
+```
+
+### Step 4: Initialize Terraform (if not done by setup script)
 ```bash
 terraform init
 ```
@@ -197,6 +219,45 @@ To minimize costs:
 1. Check if you have sufficient AWS permissions
 2. Verify the instance type is available in your region
 3. Ensure you're not hitting AWS service limits
+
+## Git Workflow and Branching Strategy
+
+This project follows a GitFlow-inspired branching model optimized for infrastructure projects. 
+
+### Branch Structure
+- **`master`** - Production-ready code, automatically deployed to production
+- **`develop`** - Integration branch, automatically deployed to staging
+- **`feature/*`** - Feature development branches
+- **`hotfix/*`** - Critical production fixes
+- **`release/*`** - Release preparation branches
+
+### Development Workflow
+```bash
+# 1. Start a new feature
+git checkout develop
+git pull origin develop
+git checkout -b feature/your-feature-name
+
+# 2. Make changes and commit
+git add .
+git commit -m "feat: add monitoring configuration"
+
+# 3. Push and create PR
+git push origin feature/your-feature-name
+# Create PR: feature/your-feature-name → develop
+
+# 4. After PR approval and merge, clean up
+git checkout develop
+git pull origin develop
+git branch -d feature/your-feature-name
+```
+
+### Important Notes
+- All feature development happens on `feature/*` branches
+- Direct commits to `master` and `develop` are not allowed
+- All changes must go through Pull Requests
+- Automated CI/CD pipeline validates all changes
+- See [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) for detailed guidelines
 
 ## File Descriptions
 
