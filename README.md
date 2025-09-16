@@ -37,7 +37,7 @@ git clone <repository-url>
 cd FilmPro-Infra
 ```
 
-2. **Copy and configure variables**
+2. **Copy and configure variables**:
 ```bash
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars with your values
