@@ -1,0 +1,8 @@
+# Alternative backend configuration for local testing
+# Uncomment this block and comment out the S3 backend if needed
+
+# terraform {
+#   backend "local" {
+#     path = "terraform.tfstate"
+#   }
+# }
