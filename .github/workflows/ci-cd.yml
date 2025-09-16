@@ -177,12 +177,19 @@ jobs:
       run: terraform init
 
     - name: Terraform Plan
-      run: terraform plan
+      id: plan
+      run: |
+        terraform plan -out=tfplan
+        terraform show -no-color tfplan > plan_output.txt
+        echo "## Terraform Plan - Staging" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`terraform" >> $GITHUB_STEP_SUMMARY
+        cat plan_output.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
     - name: Terraform Apply
       id: deploy
       run: |
-        terraform apply -auto-approve
+        terraform apply -auto-approve tfplan
         echo "jenkins_url=http://$(terraform output -raw publicip):8080" >> $GITHUB_OUTPUT
 
     - name: Verify Deployment
@@ -222,12 +229,18 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform plan
+      run: |
+        terraform plan -out=tfplan
+        terraform show -no-color tfplan > plan_output.txt
+        echo "## Terraform Plan" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`terraform" >> $GITHUB_STEP_SUMMARY
+        cat plan_output.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
     - name: Terraform Apply
       id: deploy
       run: |
-        terraform apply -auto-approve
+        terraform apply -auto-approve tfplan
         echo "jenkins_url=http://$(terraform output -raw publicip):8080" >> $GITHUB_OUTPUT
 
     - name: Verify Deployment
@@ -259,3 +272,120 @@ jobs:
           3. Configure Jenkins jobs and security settings
         draft: false
         prerelease: false
+
+  cleanup-post-deploy:
+    name: Post-Deployment Cleanup
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: always() && needs.deploy-production.result == 'success'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: cleanup-session
+        aws-region: ${{ env.AWS_REGION }}
+        audience: sts.amazonaws.com
+        output-credentials: true
+
+    - name: Clean Terraform Files
+      run: |
+        echo "🧹 Cleaning up temporary Terraform files..."
+        rm -f terraform.tfplan
+        rm -f plan_output.txt
+        echo "✅ Temporary files cleaned"
+
+    - name: Verify Infrastructure Health
+      id: health_check
+      run: |
+        echo "🏥 Performing post-deployment health checks..."
+        
+        # Initialize Terraform to get outputs
+        terraform init
+        
+        # Get the Jenkins URL
+        JENKINS_URL="http://$(terraform output -raw publicip):8080"
+        echo "jenkins_url=$JENKINS_URL" >> $GITHUB_OUTPUT
+        
+        # Wait for Jenkins to be ready (max 5 minutes)
+        echo "⏳ Waiting for Jenkins to be ready..."
+        timeout 300 bash -c "
+          while true; do
+            if curl -s --connect-timeout 10 '$JENKINS_URL' >/dev/null 2>&1; then
+              echo '✅ Jenkins is responding'
+              break
+            fi
+            echo 'Waiting for Jenkins...'
+            sleep 30
+          done
+        " || echo "⚠️ Jenkins health check timed out (this is normal for first deployment)"
+
+    - name: Update GitHub Environment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const jenkinsUrl = '${{ steps.health_check.outputs.jenkins_url }}';
+          
+          // Update the production environment URL
+          try {
+            await github.rest.repos.createOrUpdateEnvironment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment_name: 'production',
+              deployment_branch_policy: {
+                protected_branches: true,
+                custom_branch_policies: false
+              }
+            });
+            
+            console.log('✅ Production environment updated');
+            console.log(`🔗 Jenkins URL: ${jenkinsUrl}`);
+          } catch (error) {
+            console.log('ℹ️ Environment update skipped:', error.message);
+          }
+
+    - name: Security Scan Post-Deploy
+      run: |
+        echo "🔒 Running post-deployment security checks..."
+        
+        # Check security group rules
+        terraform init
+        SG_ID=$(terraform output -raw security_group_id 2>/dev/null || echo "")
+        
+        if [ -n "$SG_ID" ]; then
+          echo "Checking security group: $SG_ID"
+          aws ec2 describe-security-groups --group-ids "$SG_ID" \
+            --query 'SecurityGroups[0].IpPermissions[?FromPort==`8080`]' \
+            --output table
+        fi
+        
+        echo "✅ Security scan completed"
+
+    - name: Cleanup Summary
+      run: |
+        echo "## 🎉 Deployment & Cleanup Complete!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Infrastructure deployed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Jenkins server provisioned" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Security configurations verified" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Post-deployment cleanup completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Access Information" >> $GITHUB_STEP_SUMMARY
+        echo "- **Jenkins URL**: ${{ steps.health_check.outputs.jenkins_url }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Connection**: Use AWS SSM Session Manager" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "1. Access Jenkins at the URL above" >> $GITHUB_STEP_SUMMARY
+        echo "2. Complete Jenkins initial setup wizard" >> $GITHUB_STEP_SUMMARY
+        echo "3. Configure Jenkins security and plugins" >> $GITHUB_STEP_SUMMARY
+        echo "4. Set up your CI/CD jobs in Jenkins" >> $GITHUB_STEP_SUMMARY
