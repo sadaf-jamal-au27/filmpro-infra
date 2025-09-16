@@ -8,11 +8,16 @@ Your GitHub Actions workflow is now successfully authenticating with AWS using O
 - ✅ `AWS_SECRET_ACCESS_KEY: ***` (credentials obtained) 
 - ✅ `AWS_SESSION_TOKEN: ***` (session established)
 
-## 🔧 Current Status: Variable Configuration
-The authentication is working, but Terraform needs variable values to be provided automatically in CI/CD.
+## 🔧 Current Status: Variables Configuration Fixed
+The authentication is working, and variable configuration has been resolved!
 
-**Issue**: Terraform is prompting for `instance_type` variable in interactive mode
-**Fix**: Updated workflow to use `terraform.tfvars` file with `-var-file` parameter
+**Previous Issue**: `terraform.tfvars` file was excluded from git (security best practice)
+**Solution**: Using environment variables (`TF_VAR_instance_type`) in CI/CD workflow
+
+**How it works**:
+- Local development: Use `terraform.tfvars` file (not in git)
+- CI/CD: Use `TF_VAR_instance_type=t3.small` environment variable
+- Terraform automatically picks up `TF_VAR_*` environment variables
 
 ## ✅ Recent Fixes Applied
 1. **Added AWS_ROLE_ARN secret** to GitHub repository ✓
