@@ -55,7 +55,7 @@ jobs:
     - name: Run Checkov Security Scan
       id: checkov
       run: |
-        checkov -f . --framework terraform --output cli --soft-fail
+        checkov -d . --framework terraform --output cli --soft-fail --quiet --skip-download
       continue-on-error: true
 
     - name: Comment PR with Results

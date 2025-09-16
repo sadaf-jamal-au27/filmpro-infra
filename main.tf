@@ -12,10 +12,26 @@ resource "aws_security_group" "my_server_sg" {
     }
  
     egress {
-        description = "To allow outbound traffic"
-        from_port = "0"
-        to_port = "0"
-        protocol = "-1"
+        description = "HTTPS outbound for package updates"
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    
+    egress {
+        description = "HTTP outbound for package updates"
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    
+    egress {
+        description = "DNS outbound"
+        from_port = 53
+        to_port = 53
+        protocol = "udp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 }
@@ -65,9 +81,24 @@ resource "aws_instance" "my_server" {
     vpc_security_group_ids = [aws_security_group.my_server_sg.id]
     iam_instance_profile = aws_iam_instance_profile.jenkins_profile.name
     user_data = file("${path.module}/scripts/install_jenkins.sh")
- 
+    monitoring = true
+    ebs_optimized = true
+    
+    metadata_options {
+        http_endpoint = "enabled"
+        http_tokens = "required"
+        http_put_response_hop_limit = 1
+        instance_metadata_tags = "enabled"
+    }
+    
+    root_block_device {
+        encrypted = true
+        volume_type = "gp3"
+        volume_size = 8
+        delete_on_termination = true
+    }
+
     tags = {
         Name = "myserver"
     }
 }
-

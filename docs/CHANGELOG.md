@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automated release creation on production deployments
 - Documentation folder (`docs/`) for better organization
 - Documentation index (`docs/README.md`)
+- OIDC troubleshooting script (`scripts/troubleshoot-oidc.sh`)
+- Security improvements documentation (`SECURITY_IMPROVEMENTS.md`)
 
 ### Changed
 - Updated CI/CD pipeline to use OIDC for AWS authentication
@@ -50,11 +52,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved security posture by removing static credentials
 - Reorganized documentation files into `docs/` folder
 - Updated all file references to reflect new documentation structure
+- **MAJOR**: Upgraded security configuration to pass all Checkov security checks
 
 ### Security
 - Removed dependency on long-lived AWS access keys
 - Implemented secure token-based authentication for CI/CD
 - Added security scanning to CI/CD pipeline
+- **NEW**: Enforced IMDSv2 for EC2 instances
+- **NEW**: Enabled EBS encryption for all volumes
+- **NEW**: Restricted security group egress rules (removed 0.0.0.0/0:*)
+- **NEW**: Enabled detailed monitoring for EC2 instances
+- **NEW**: Enabled EBS optimization for better performance
+- **NEW**: Updated to GP3 storage for modern performance
 
 ## [1.2.0] - 2024-01-XX
 
