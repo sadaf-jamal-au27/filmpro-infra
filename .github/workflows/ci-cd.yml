@@ -10,6 +10,13 @@ env:
   TF_VERSION: '1.5.0'
   AWS_REGION: us-east-1
 
+# Required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   terraform-checks:
     name: Terraform Validation and Security
@@ -96,9 +103,10 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: terraform-plan-session
         aws-region: ${{ env.AWS_REGION }}
+        audience: sts.amazonaws.com
 
     - name: Terraform Init
       run: terraform init
@@ -157,9 +165,10 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: staging-deploy-session
         aws-region: ${{ env.AWS_REGION }}
+        audience: sts.amazonaws.com
 
     - name: Terraform Init
       run: terraform init
@@ -199,9 +208,10 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: production-deploy-session
         aws-region: ${{ env.AWS_REGION }}
+        audience: sts.amazonaws.com
 
     - name: Terraform Init
       run: terraform init
@@ -234,7 +244,7 @@ jobs:
           
           **Infrastructure Changes:**
           - Jenkins server deployed to production
-          - Jenkins URL: http://${{ steps.deploy.outputs.jenkins_url }}:8080
+          - Jenkins URL: ${{ steps.deploy.outputs.jenkins_url }}
           
           **Deployment Details:**
           - Commit: ${{ github.sha }}

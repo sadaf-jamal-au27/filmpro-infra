@@ -202,7 +202,7 @@ display_manual_steps() {
     echo
     echo "4. Test the workflow by creating a feature branch and pull request"
     echo
-    echo -e "${GREEN}For detailed instructions, see: MERGING_SETUP.md${NC}"
+    echo -e "${GREEN}For detailed instructions, see: docs/MERGING_SETUP.md${NC}"
 }
 
 # Verify current setup

@@ -24,7 +24,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [1.0.0] - 2025-09-16
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.3.0] - 2024-01-XX
+
+### Added
+- OIDC authentication for GitHub Actions (replaces long-lived AWS keys)
+- AWS OIDC setup automation script (`scripts/setup-aws-oidc.sh`)
+- Comprehensive GitHub setup guide (`GITHUB_SETUP.md`)
+- Environment-specific deployments (staging/production)
+- Automated security scanning with Checkov
+- Branch protection and approval workflows
+- Automated release creation on production deployments
+- Documentation folder (`docs/`) for better organization
+- Documentation index (`docs/README.md`)
+
+### Changed
+- Updated CI/CD pipeline to use OIDC for AWS authentication
+- Enhanced documentation with CI/CD setup instructions
+- Improved security posture by removing static credentials
+- Reorganized documentation files into `docs/` folder
+- Updated all file references to reflect new documentation structure
+
+### Security
+- Removed dependency on long-lived AWS access keys
+- Implemented secure token-based authentication for CI/CD
+- Added security scanning to CI/CD pipeline
+
+## [1.2.0] - 2024-01-XX
 
 ### Added
 - Complete Terraform configuration for Jenkins on AWS EC2

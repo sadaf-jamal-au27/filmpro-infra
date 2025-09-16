@@ -29,57 +29,36 @@ FilmPro-Infra/
 - IAM Role and Instance Profile for EC2 with SSM permissions
 - Automatic Jenkins installation via user data script
 
-## Setup Instructions
+## Quick Start
 
-### Step 1: Clone and Navigate
+1. **Clone the repository**
 ```bash
-git clone https://github.com/sadaf-jamal-au27/filmpro-infra.git
-cd filmpro-infra
+git clone <repository-url>
+cd FilmPro-Infra
 ```
 
-### Step 2: Development Environment Setup
+2. **Copy and configure variables**
 ```bash
-# Run the automated setup script
-chmod +x scripts/setup-dev.sh
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
+```
+
+3. **Set up AWS OIDC for CI/CD (Recommended)**
+```bash
+./scripts/setup-aws-oidc.sh
+```
+
+4. **Run development setup script**
+```bash
 ./scripts/setup-dev.sh
 ```
 
-This script will:
-- Check prerequisites (Git, Terraform, AWS CLI)
-- Set up Git hooks for code quality
-- Create terraform.tfvars from example
-- Initialize and validate Terraform
-- Set up development branches
-- Install security scanning tools
-
-### Step 3: Manual Configuration
-```bash
-# Edit the configuration file with your values
-vim terraform.tfvars
-```
-
-### Step 4: Initialize Terraform (if not done by setup script)
+5. **Deploy infrastructure**
 ```bash
 terraform init
-```
-
-### Step 3: Validate Configuration
-```bash
-terraform validate
-```
-This checks the syntax and configuration for errors.
-
-### Step 4: Review the Configuration (Dry-Run)
-```bash
 terraform plan
-```
-This shows what resources will be created without actually creating them.
-
-### Step 5: Deploy the Infrastructure
-```bash
 terraform apply
 ```
-Type 'yes' when prompted to confirm the deployment.
 
 ### Step 6: Get Connection Information
 After deployment, Terraform will output:
@@ -257,7 +236,38 @@ git branch -d feature/your-feature-name
 - Direct commits to `master` and `develop` are not allowed
 - All changes must go through Pull Requests
 - Automated CI/CD pipeline validates all changes
-- See [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) for detailed guidelines
+- See [BRANCHING_STRATEGY.md](docs/BRANCHING_STRATEGY.md) for detailed guidelines
+
+## Documentation
+
+- [**GITHUB_SETUP.md**](./docs/GITHUB_SETUP.md) - Complete guide for setting up GitHub Actions with AWS OIDC authentication
+- [**BRANCHING_STRATEGY.md**](./docs/BRANCHING_STRATEGY.md) - Git workflow and branching strategies
+- [**MERGING_SETUP.md**](./docs/MERGING_SETUP.md) - Steps to enable merge strategies in your repository
+- [**CHANGELOG.md**](./docs/CHANGELOG.md) - Project changes and version history
+
+## CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions CI/CD pipeline with:
+
+- **Terraform validation and security scanning** (Checkov)
+- **Automatic plan comments** on pull requests
+- **Environment-specific deployments** (staging/production)
+- **OIDC authentication** for secure AWS access (no long-lived keys)
+- **Branch protection** and approval workflows
+- **Automated releases** with deployment notifications
+
+### Pipeline Triggers
+- **Pull Requests**: Validation, security scan, and plan
+- **Push to `develop`**: Deploy to staging environment
+- **Push to `master`**: Deploy to production environment (with approval)
+
+### Setup Requirements
+1. Configure AWS OIDC (use `./scripts/setup-aws-oidc.sh`)
+2. Set up GitHub environments (staging, production)
+3. Configure branch protection rules
+4. Add required secrets: `AWS_ROLE_ARN`
+
+See [GITHUB_SETUP.md](./docs/GITHUB_SETUP.md) for detailed instructions.
 
 ## File Descriptions
 
@@ -266,7 +276,21 @@ git branch -d feature/your-feature-name
 - **terraform.tfvars**: Sets values for the variables
 - **outputs.tf**: Defines what information to display after deployment
 - **provider.tf**: Configures the AWS provider
-- **scripts/install_jenkins.sh**: Bash script that installs Jenkins and dependencies
+- **scripts/**: Directory containing automation and setup scripts
+  - **install_jenkins.sh**: Bash script that installs Jenkins and dependencies
+  - **setup-dev.sh**: Development environment setup
+  - **setup-aws-oidc.sh**: AWS OIDC authentication setup
+  - **setup-merging.sh**: Git merge strategy configuration
+  - **status.sh**: Project status checker
+- **docs/**: Directory containing all project documentation
+  - **README.md**: Documentation index
+  - **GITHUB_SETUP.md**: GitHub Actions & CI/CD setup guide
+  - **BRANCHING_STRATEGY.md**: Git workflow and branching strategies
+  - **MERGING_SETUP.md**: Merge strategy configuration guide
+  - **CHANGELOG.md**: Project version history
+- **.github/**: GitHub Actions workflows and templates
+  - **workflows/ci-cd.yml**: Main CI/CD pipeline
+  - **pull_request_template.md**: PR template
 
 ## Support
 
