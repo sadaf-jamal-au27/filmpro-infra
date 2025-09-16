@@ -1,2 +1,0 @@
-# Copy this file to terraform.tfvars and edit the values
-instance_type = "t3.small"

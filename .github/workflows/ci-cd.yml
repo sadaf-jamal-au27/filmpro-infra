@@ -9,6 +9,7 @@ on:
 env:
   TF_VERSION: '1.5.0'
   AWS_REGION: us-east-1
+  TF_VAR_instance_type: t3.small
 
 # Required for OIDC authentication
 permissions:

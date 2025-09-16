@@ -5,32 +5,6 @@ All notable changes to the FilmPro Infrastructure project will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-- Initial Jenkins infrastructure setup with Terraform
-- AWS Systems Manager Session Manager integration for secure access
-- Comprehensive documentation and setup guides
-- Security-first approach with no SSH access
-- Automated installation scripts for Jenkins and dependencies
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [1.3.0] - 2024-01-XX
 
 ### Added
@@ -45,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation index (`docs/README.md`)
 - OIDC troubleshooting script (`scripts/troubleshoot-oidc.sh`)
 - Security improvements documentation (`SECURITY_IMPROVEMENTS.md`)
+- GitHub secret configuration helper script (`scripts/fix-github-secret.sh`)
 
 ### Changed
 - Updated CI/CD pipeline to use OIDC for AWS authentication
@@ -65,9 +40,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **NEW**: Enabled EBS optimization for better performance
 - **NEW**: Updated to GP3 storage for modern performance
 
+### Fixed
+- Resolved GitHub Actions CI/CD authentication issues
+- Fixed Checkov security scanning command parameters
+- Fixed OIDC trust policy repository name (case-sensitive mismatch)
+
 ## [1.2.0] - 2024-01-XX
 
 ### Added
+- Initial Jenkins infrastructure setup with Terraform
+- AWS Systems Manager Session Manager integration for secure access
+- Comprehensive documentation and setup guides
+- Security-first approach with no SSH access
+- Automated installation scripts for Jenkins and dependencies
 - Complete Terraform configuration for Jenkins on AWS EC2
 - Security group with minimal required access (port 8080 only)
 - IAM role and instance profile for EC2 with SSM permissions
