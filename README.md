@@ -31,7 +31,7 @@ FilmPro-Infra/
 
 ## Quick Start
 
-1. **Clone the repository**
+1. **Clone the repository**:
 ```bash
 git clone <repository-url>
 cd FilmPro-Infra
